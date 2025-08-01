@@ -1,9 +1,10 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-from windrose import WindroseAxes
 import streamlit as st
 import os
 import matplotlib.dates as mdates
+import plotly.express as px
+import matplotlib.pyplot as plt
+from windrose import WindroseAxes
 
 st.set_page_config(page_title="Análisis de Viento", layout="wide")
 st.title("🌬️ Análisis Interactivo de Datos de Viento")
@@ -71,24 +72,19 @@ if os.path.exists(archivo):
         if df_filtrado[col].apply(lambda x: isinstance(x, bytes)).any():
             df_filtrado = df_filtrado.drop(columns=[col])
 
-    # ========= TABLA =========
-    st.subheader("📋 Datos Filtrados")
-    st.write(df_filtrado)
+    # ========= KPIs =========
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Velocidad Promedio", f"{df_filtrado['Viento_kmh'].mean():.2f} km/h")
+    col2.metric("Ráfaga Máxima", f"{df_filtrado['Rafaga_kmh'].max():.2f} km/h")
+    col3.metric("Registros", f"{len(df_filtrado)}")
 
-    # ========= GRÁFICO DE LÍNEA =========
-    st.subheader("📈 Velocidad y Ráfagas de Viento")
-    fig, ax = plt.subplots(figsize=(12, 4))
-    ax.plot(df_filtrado["FechaHora"], df_filtrado["Viento_kmh"], label="Viento (km/h)")
-    ax.plot(df_filtrado["FechaHora"], df_filtrado["Rafaga_kmh"], label="Ráfaga (km/h)", alpha=0.7)
-    ax.set_xlabel("Fecha y Hora")
-    ax.set_ylabel("Velocidad (km/h)")
-    ax.legend()
-    ax.grid(True)
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M'))
-    plt.xticks(rotation=45)
-    st.pyplot(fig)
+    # ========= Gráfico interactivo de líneas con Plotly =========
+    fig_line = px.line(df_filtrado, x="FechaHora", y=["Viento_kmh", "Rafaga_kmh"],
+                       labels={"value": "Velocidad (km/h)", "FechaHora": "Fecha y Hora", "variable": "Tipo de Velocidad"},
+                       title="Velocidad y Ráfagas de Viento")
+    st.plotly_chart(fig_line, use_container_width=True)
 
-    # ========= ROSAS DEL VIENTO =========
+    # ========= ROSAS DEL VIENTO con matplotlib =========
     st.subheader("🌪️ Rosa del Viento y Ráfagas")
     col1, col2 = st.columns(2)
 
@@ -107,6 +103,7 @@ if os.path.exists(archivo):
         ax2.bar(df_filtrado["Direccion_grados"], df_filtrado["Rafaga_kmh"], normed=True, opening=0.8, edgecolor='white', cmap=plt.cm.plasma)
         ax2.set_legend(title="Ráfaga (km/h)")
         st.pyplot(fig2)
+
 else:
     st.error("❌ El archivo 'PuertoMontt.xlsx' no se encuentra en el directorio del script. Sube el archivo a tu repositorio o revisa la ruta.")
 
