@@ -52,60 +52,6 @@ if archivo is not None:
     elif opcion_filtro == "Mes completo":
         años = sorted(df['FechaHora'].dt.year.unique())
         año_sel = st.sidebar.selectbox("Selecciona el año", años)
-import pandas as pd
-import matplotlib.pyplot as plt
-from windrose import WindroseAxes
-import streamlit as st
-import matplotlib.dates as mdates
-
-# Configurar la app
-st.set_page_config(page_title="Análisis de Viento", layout="wide")
-st.title("🌬️ Análisis Interactivo de Datos de Viento")
-
-# ==== Uploader de archivo ====
-archivo = st.sidebar.file_uploader("Carga tu archivo Excel", type=["xlsx"])
-
-if archivo is not None:
-    # Leer el archivo Excel cargado
-    df = pd.read_excel(archivo)
-
-    # Normalizar columnas
-    df.columns = df.columns.astype(str).str.strip()
-    df = df.convert_dtypes()
-
-    # Detectar columnas relevantes
-    col_fecha = df.columns[0]
-    col_viento = [col for col in df.columns if "Wind Speed" in col or col.strip() == "Y"][0]
-    col_rafaga = [col for col in df.columns if "Wind Gust" in col or col.strip() == "Z"][0]
-    col_direccion = [col for col in df.columns if "Wind Direction" in col or col.strip() == "AA"][0]
-
-    df = df.rename(columns={
-        col_fecha: "FechaHora",
-        col_viento: "Viento_kmh",
-        col_rafaga: "Rafaga_kmh",
-        col_direccion: "Direccion_grados"
-    })
-    df["FechaHora"] = pd.to_datetime(df["FechaHora"])
-
-    # ========= FILTRO FLEXIBLE DE FECHAS =========
-    st.sidebar.header("📅 Filtro de Fechas")
-    opcion_filtro = st.sidebar.radio(
-        "Selecciona el tipo de filtro",
-        ["Rango de fechas", "Día específico", "Mes completo", "Año completo"]
-    )
-
-    fecha_min = df['FechaHora'].min().date()
-    fecha_max = df['FechaHora'].max().date()
-
-    if opcion_filtro == "Rango de fechas":
-        fecha_inicio, fecha_fin = st.sidebar.date_input("Selecciona el rango", [fecha_min, fecha_max], min_value=fecha_min, max_value=fecha_max)
-        df_filtrado = df[(df['FechaHora'].dt.date >= fecha_inicio) & (df['FechaHora'].dt.date <= fecha_fin)]
-    elif opcion_filtro == "Día específico":
-        dia = st.sidebar.date_input("Selecciona un día", fecha_min, min_value=fecha_min, max_value=fecha_max)
-        df_filtrado = df[df['FechaHora'].dt.date == dia]
-    elif opcion_filtro == "Mes completo":
-        años = sorted(df['FechaHora'].dt.year.unique())
-        año_sel = st.sidebar.selectbox("Selecciona el año", años)
         meses = sorted(df[df['FechaHora'].dt.year == año_sel]['FechaHora'].dt.month.unique())
         mes_sel = st.sidebar.selectbox("Selecciona el mes", meses)
         df_filtrado = df[(df['FechaHora'].dt.year == año_sel) & (df['FechaHora'].dt.month == mes_sel)]
@@ -165,3 +111,4 @@ if archivo is not None:
 
 else:
     st.info("📂 Esperando que cargues un archivo Excel con los datos de viento para iniciar el análisis.")
+
