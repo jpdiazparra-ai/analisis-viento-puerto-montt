@@ -121,8 +121,3 @@ if os.path.exists(archivo):
 
 else:
     st.error("❌ El archivo 'PuertoMontt.xlsx' no se encuentra en el directorio del script. Sube el archivo a tu repositorio o revisa la ruta.")
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 2deb2595993be4e7fb2d8676c19b55299ddd66f7
