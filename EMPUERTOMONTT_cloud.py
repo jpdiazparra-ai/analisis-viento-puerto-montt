@@ -72,40 +72,38 @@ if os.path.exists(archivo):
         if df_filtrado[col].apply(lambda x: isinstance(x, bytes)).any():
             df_filtrado = df_filtrado.drop(columns=[col])
 
-    # === KPIs de viento ===
-    intervalo_horas = 1  # Ajusta si tus datos tienen otro intervalo (ej. 0.1667 para 10 minutos)
+    # ======= NUEVOS KPIs SOLICITADOS =======
+    v_util_min = 3    # km/h
+    v_util_max = 25   # km/h
 
-    v_util_min = 3  # Umbral mínimo de viento útil (km/h)
-    v_util_max = 25  # Umbral máximo de viento útil (km/h)
-
-    vel_modal = df_filtrado["Viento_kmh"].mode()[0]
-    dir_dominante = df_filtrado["Direccion_grados"].mode()[0]
-
-    porc_tiempo_viento_util = df_filtrado[
+    velocidad_modal = df_filtrado["Viento_kmh"].mode()[0]
+    direccion_dominante = df_filtrado["Direccion_grados"].mode()[0]
+    porcentaje_tiempo_viento_util = df_filtrado[
         (df_filtrado["Viento_kmh"] >= v_util_min) & (df_filtrado["Viento_kmh"] <= v_util_max)
     ].shape[0] / len(df_filtrado) * 100
 
-    # Mostrar KPIs en columnas
     col1, col2, col3 = st.columns(3)
-    col1.metric("Velocidad Modal", f"{vel_modal:.2f} km/h")
-    col2.metric("Dirección Dominante", f"{dir_dominante:.0f}°")
-    col3.metric("Tiempo con Viento Útil (%)", f"{porc_tiempo_viento_util:.2f} %")
+    col1.metric("Velocidad Modal", f"{velocidad_modal:.2f} km/h")
+    col2.metric("Dirección Dominante", f"{direccion_dominante:.0f}°")
+    col3.metric("Tiempo con Viento Útil (%)", f"{porcentaje_tiempo_viento_util:.2f} %")
 
-    # ========= TABLA =========
-    st.subheader("📋 Datos Filtrados")
-    st.write(df_filtrado)
+    # ========= KPIs EXISTENTES =========
+    col4, col5, col6 = st.columns(3)
+    col4.metric("Velocidad Promedio", f"{df_filtrado['Viento_kmh'].mean():.2f} km/h")
+    col5.metric("Ráfaga Máxima", f"{df_filtrado['Rafaga_kmh'].max():.2f} km/h")
+    col6.metric("Registros", f"{len(df_filtrado)}")
 
-    # ========= GRÁFICO INTERACTIVO DE LÍNEAS CON PLOTLY =========
+    # ========= Gráfico interactivo de líneas con Plotly =========
     fig_line = px.line(df_filtrado, x="FechaHora", y=["Viento_kmh", "Rafaga_kmh"],
                        labels={"value": "Velocidad (km/h)", "FechaHora": "Fecha y Hora", "variable": "Tipo de Velocidad"},
                        title="Velocidad y Ráfagas de Viento")
     st.plotly_chart(fig_line, use_container_width=True)
 
-    # ========= ROSAS DEL VIENTO =========
+    # ========= ROSAS DEL VIENTO con matplotlib =========
     st.subheader("🌪️ Rosa del Viento y Ráfagas")
-    col1, col2 = st.columns(2)
+    col7, col8 = st.columns(2)
 
-    with col1:
+    with col7:
         st.markdown("**🌪️ Velocidad promedio del Viento**")
         fig1 = plt.figure(figsize=(5, 5))
         ax1 = WindroseAxes.from_ax(fig=fig1)
@@ -113,7 +111,7 @@ if os.path.exists(archivo):
         ax1.set_legend(title="Viento (km/h)")
         st.pyplot(fig1)
 
-    with col2:
+    with col8:
         st.markdown("**💨 Ráfagas máximas del Viento**")
         fig2 = plt.figure(figsize=(5, 5))
         ax2 = WindroseAxes.from_ax(fig=fig2)
