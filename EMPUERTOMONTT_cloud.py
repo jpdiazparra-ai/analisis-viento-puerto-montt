@@ -2,17 +2,16 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from windrose import WindroseAxes
 import streamlit as st
+import os
 import matplotlib.dates as mdates
 
-# Configurar la app
 st.set_page_config(page_title="Análisis de Viento", layout="wide")
 st.title("🌬️ Análisis Interactivo de Datos de Viento")
 
-# ==== Uploader de archivo ====
-archivo = st.sidebar.file_uploader("Carga tu archivo Excel", type=["xlsx"])
+# === Carga automática del archivo desde el repositorio ===
+archivo = os.path.join(os.path.dirname(__file__), "PuertoMontt.xlsx")
 
-if archivo is not None:
-    # Leer el archivo Excel cargado
+if os.path.exists(archivo):
     df = pd.read_excel(archivo)
 
     # Normalizar columnas
@@ -108,7 +107,7 @@ if archivo is not None:
         ax2.bar(df_filtrado["Direccion_grados"], df_filtrado["Rafaga_kmh"], normed=True, opening=0.8, edgecolor='white', cmap=plt.cm.plasma)
         ax2.set_legend(title="Ráfaga (km/h)")
         st.pyplot(fig2)
-
 else:
-    st.info("📂 Esperando que cargues un archivo Excel con los datos de viento para iniciar el análisis.")
+    st.error("❌ El archivo 'PuertoMontt.xlsx' no se encuentra en el directorio del script. Sube el archivo a tu repositorio o revisa la ruta.")
+
 
