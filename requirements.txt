@@ -1,5 +1,7 @@
-streamlit
 pandas
-matplotlib
+streamlit
 plotly
+matplotlib
 windrose
+openpyxl
+
