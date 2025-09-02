@@ -1,7 +1,8 @@
-pandas
 streamlit
-plotly
+pandas
 matplotlib
+plotly
 windrose
+requests
 openpyxl
 
